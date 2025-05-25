@@ -1,6 +1,5 @@
 import pytest
 from app.services.bank_service import BranchBankService, AtmBankService
-from app.validator.amount_validator import AmountValidator
 
 class AccountServiceDouble:
     def __init__(self):
@@ -16,6 +15,11 @@ class AccountServiceDouble:
 
     def transfer_money(self, from_account_id, to_account_id, amount):
         self.transfers.append((from_account_id, to_account_id, amount))
+
+
+def amount_validator(amount):
+    if amount <= 0 or amount > 10000:
+        raise ValueError("Amount must be positive and less than or equal to 10000")
 
 # BranchBankService tests
 
@@ -38,30 +42,27 @@ def test_branchbankservice_transfer():
     assert test_double.transfers == [(1, 2, 200)]
 
 # AtmBankService tests
+
 def test_atmbankservice_deposit_valid():
     test_double = AccountServiceDouble()
-    validator = AmountValidator()
-    service = AtmBankService(test_double, validator)
+    service = AtmBankService(test_double, amount_validator)
     service.deposit_money(1, 100)
     assert test_double.deposits == [(1, 100)]
 
 def test_atmbankservice_deposit_too_large():
     test_double = AccountServiceDouble()
-    validator = AmountValidator()
-    service = AtmBankService(test_double, validator)
+    service = AtmBankService(test_double, amount_validator)
     with pytest.raises(ValueError):
         service.deposit_money(1, 20000)
 
 def test_atmbankservice_withdraw_valid():
     test_double = AccountServiceDouble()
-    validator = AmountValidator()
-    service = AtmBankService(test_double, validator)
+    service = AtmBankService(test_double, amount_validator)
     service.withdraw_money(1, 100)
     assert test_double.withdrawals == [(1, 100)]
 
 def test_atmbankservice_withdraw_too_large():
     test_double = AccountServiceDouble()
-    validator = AmountValidator()
-    service = AtmBankService(test_double, validator)
+    service = AtmBankService(test_double, amount_validator)
     with pytest.raises(ValueError):
         service.withdraw_money(1, 20000)
