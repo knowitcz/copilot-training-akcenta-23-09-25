@@ -1,6 +1,7 @@
 import abc
 
 from app.services.account_service import AccountService
+from app.validator.amount_validator import AmountValidator
 
 
 class BankService(abc.ABC):
@@ -74,13 +75,15 @@ class BranchBankService(BankService):
         self.account_service.withdraw_money(account_id, amount)
 
 class AtmBankService(BankService):
-    def __init__(self, account_service: AccountService):
+    def __init__(self, account_service: AccountService, amount_validator: AmountValidator):
         self.account_service = account_service
+        self.amount_validator = amount_validator
 
     def deposit_money_at_atm(self, account_id: int, amount: int) -> None:
         """
         Deposit money at the ATM
         """
+        self.amount_validator.validate(amount)
         self.account_service.deposit_money(account_id, amount)
 
     def deposit_money_at_branch(self, account_id: int, amount: int) -> None:
@@ -99,6 +102,7 @@ class AtmBankService(BankService):
         """
         Withdraw money at the ATM
         """
+        self.amount_validator.validate(amount)
         self.account_service.withdraw_money(account_id, amount)
 
     def withdraw_money_at_branch(self, account_id: int, amount: int) -> None:
