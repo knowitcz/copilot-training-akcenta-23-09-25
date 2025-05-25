@@ -3,12 +3,12 @@ from sqlmodel import Session
 from app.db import get_session
 from app.repository.account_repository import AccountRepository
 from app.services.account_service import AccountService
-from app.services.bank_service import OnlineBankService
-
+from app.services.bank_service import OnlineBankService, TransferService
+from app.validator.amount_validator import AmountValidator
 
 def get_account_service(session: Session = Depends(get_session)) -> AccountService:
     repo = AccountRepository(session)
     return AccountService(repo)
 
-def get_online_bank_service(account_service: AccountService = Depends(get_account_service)) -> OnlineBankService:
+def get_transfer_service(account_service: AccountService = Depends(get_account_service)) -> TransferService:
     return OnlineBankService(account_service)
