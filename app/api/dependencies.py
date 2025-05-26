@@ -7,10 +7,12 @@ from app.services.bank_service import OnlineBankService, TransferService
 from app.validator.amount_validator import AmountValidatorProtocol, positive_amount_validator
 from app.repository.client_repository import ClientRepository
 from app.services.client_service import ClientService
+from app.repository.transaction_repository import TransactionRepository
 
 def get_account_service(session: Session = Depends(get_session)) -> AccountService:
-    repo = AccountRepository(session)
-    return AccountService(repo)
+    account_repo = AccountRepository(session)
+    transaction_repo = TransactionRepository(session)
+    return AccountService(account_repo, transaction_repo)
 
 def get_transfer_service(account_service: AccountService = Depends(get_account_service)) -> TransferService:
     amount_validator: AmountValidatorProtocol = positive_amount_validator
