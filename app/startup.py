@@ -9,14 +9,20 @@ def read_sql_file(sql_file_path):
     with open(sql_file_path, "r") as sql_file:
         return sql_file.read()
 
+def run_sql_scripts_in_order():
+    sql_dir = os.path.join(os.path.dirname(__file__), "../resources/data/")
+    sql_files = sorted(f for f in os.listdir(sql_dir) if f.endswith('.sql'))
+    with get_session() as session:
+        for sql_file in sql_files:
+            sql_file_path = os.path.join(sql_dir, sql_file)
+            sql_script = read_sql_file(sql_file_path)
+            session.exec(text(sql_script))
+        session.commit()
+
 def create_default_accounts():
-    sql_file_path = os.path.join(os.path.dirname(__file__), "../resources/data/default_accounts.sql")
     with get_session() as session:
         statement = select(func.count()).select_from(Account)
         account_count = session.exec(statement).one()
         if account_count > 0:
             return
-
-        sql_script = read_sql_file(sql_file_path)
-        session.exec(text(sql_script))
-        session.commit()
+    run_sql_scripts_in_order()

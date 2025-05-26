@@ -1,5 +1,6 @@
 from sqlmodel import Session, select
 from app.models.account import Account
+from app.models.client import Client
 
 class AccountRepository:
     """
@@ -21,7 +22,7 @@ class AccountRepository:
         :param account_id: The ID of the account to retrieve.
         :return: The Account object if found, otherwise None.
         """
-        statement = select(Account).where(Account.id == account_id)
+        statement = select(Account).join(Client).where(Account.id == account_id, Account.client_id == Client.id)
         account = self.session.exec(statement).first()
         return account
 
