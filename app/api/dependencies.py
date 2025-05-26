@@ -8,6 +8,7 @@ from app.validator.amount_validator import AmountValidatorProtocol, positive_amo
 from app.repository.client_repository import ClientRepository
 from app.services.client_service import ClientService
 from app.repository.transaction_repository import TransactionRepository
+from app.services.statistics_service import StatisticsService
 
 def get_account_service(session: Session = Depends(get_session)) -> AccountService:
     account_repo = AccountRepository(session)
@@ -21,3 +22,6 @@ def get_transfer_service(account_service: AccountService = Depends(get_account_s
 def get_client_service(session: Session = Depends(get_session)) -> ClientService:
     repo = ClientRepository(session)
     return ClientService(repo)
+
+def get_statistics_service(session: Session = Depends(get_session)) -> StatisticsService:
+    return StatisticsService(session)

@@ -4,6 +4,7 @@ from app.db import SQLModel, engine
 from app.api.account_routes import router as account_router
 from app.api.bank_routes import router as bank_router
 from app.api.client_routes import router as client_router
+from app.api.statistics_routes import router as statistics_router
 from app.startup import create_default_accounts
 
 SQLModel.metadata.create_all(bind=engine)
@@ -18,5 +19,6 @@ def serve_static_files():
 app.include_router(account_router, prefix="/api/v1", tags=["account"])
 app.include_router(bank_router, prefix="/api/v1", tags=["bank"])
 app.include_router(client_router, prefix="/api/v1", tags=["client"])
+app.include_router(statistics_router, prefix="/api/v1", tags=["statistics"])
 
 create_default_accounts()

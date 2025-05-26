@@ -1,4 +1,5 @@
-from sqlmodel import Session, select
+from sqlmodel import Session, func, select
+from app.models.account import Account
 from app.models.transaction import Transaction
 from typing import List
 from datetime import datetime
@@ -30,3 +31,27 @@ class TransactionRepository:
             (Transaction.to_account_id == account_id)
         )
         return list(self.session.exec(statement))
+
+    def get_incoming_sum_by_client(self, client_id: int, start: datetime, end: datetime) -> int:
+        statement = select(func.sum(Transaction.amount)) \
+            .select_from(Transaction).join(Account, onclause=Transaction.to_account_id == Account.id) \
+                .where(
+                (Account.client_id == client_id) &
+                (Transaction.timestamp >= start) &
+                (Transaction.timestamp <= end)
+            )
+        result = self.session.exec(statement).first()
+        return result if result is not None else 0
+
+    def get_outgoing_sum_by_client(self, client_id: int, start: datetime, end: datetime) -> int:
+        statement = select(func.sum(Transaction.amount)) \
+            .select_from(Transaction) \
+            .join(Account, onclause=Transaction.from_account_id == Account.id) \
+            .where(
+                    (Account.client_id == client_id) &
+                    (Transaction.timestamp >= start) &
+                    (Transaction.timestamp <= end)
+        )
+        result = self.session.exec(statement).first()
+        return result if result is not None else 0
+
